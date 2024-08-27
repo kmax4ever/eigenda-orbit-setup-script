@@ -86,31 +86,31 @@ services:
       service: proxy
 
   nitro:
-    image: ghcr.io/layr-labs/nitro-eigenda:cfcd9c6
+    image: ghcr.io/layr-labs/nitro-eigenda:latest
     ports:
       - "127.0.0.1:8449:8449"
     volumes:
       - "./config:/home/user/.arbitrum"
     command: --conf.file /home/user/.arbitrum/nodeConfig.json
 
-  eigenda-proxy:
-    image: ghcr.io/layr-labs/eigenda-proxy:main
+  eigenda_proxy:
+    container_name: eigenda-proxy
+    image: ghcr.io/layr-labs/eigenda-proxy:v1.4.0
+    environment:
+      EIGENDA_PROXY_ADDR: 0.0.0.0
+      EIGENDA_PROXY_PORT: 3100
+      MEMSTORE_ENABLED: false
+      EIGENDA_PROXY_SIGNER_PRIVATE_KEY_HEX: ${PRIVATE_KEY}
+      EIGENDA_PROXY_ETH_RPC: https://ethereum-holesky-rpc.publicnode.com
+      EIGENDA_PROXY_SERVICE_MANAGER_ADDR: 0xD4A7E1Bd8015057293f0D0A557088c286942e84b
+      EIGENDA_PROXY_EIGENDA_DISPERSER_RPC: disperser-holesky.eigenda.xyz:443
+      EIGENDA_PROXY_ETH_CONFIRMATION_DEPTH: 0
+
     ports:
-      - "127.0.0.1:3100:3100"
-    volumes:
-      - "./config:/home/user/.arbitrum"
-    command: >
-      ./eigenda-proxy
-      --addr 127.0.0.1
-      --port 3100
-      --eigenda-disperser-rpc disperser-holesky.eigenda.xyz:443
-      --eigenda-signer-private-key-hex ${PRIVATE_KEY}
-      --eigenda-eth-rpc ${ETH_RPC_URL}
-      --eigenda-svc-manager-addr 0xD4A7E1Bd8015057293f0D0A557088c286942e84b
-    restart: unless-stopped
+      - 3100:3100
 
   das-server:
-    image: ghcr.io/layr-labs/nitro-eigenda:cfcd9c6
+    image: ghcr.io/layr-labs/nitro-eigenda:latest
     platform: linux/amd64
     entrypoint: [ "/bin/bash", "/das-server.sh" ]
     volumes:
