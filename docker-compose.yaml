@@ -86,7 +86,7 @@ services:
       service: proxy
 
   nitro:
-    image: ghcr.io/layr-labs/nitro-eigenda:latest
+    image: ghcr.io/layr-labs/nitro-eigenda:8b4f4ce
     ports:
       - "127.0.0.1:8449:8449"
     volumes:
