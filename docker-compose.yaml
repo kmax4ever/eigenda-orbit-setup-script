@@ -87,6 +87,7 @@ services:
 
   nitro:
     image: ghcr.io/layr-labs/nitro-eigenda:8b4f4ce
+    platform: linux/amd64
     ports:
       - "127.0.0.1:8449:8449"
     volumes:
@@ -96,6 +97,7 @@ services:
   eigenda_proxy:
     container_name: eigenda-proxy
     image: ghcr.io/layr-labs/eigenda-proxy:v1.4.0
+    platform: linux/amd64
     environment:
       EIGENDA_PROXY_ADDR: 0.0.0.0
       EIGENDA_PROXY_PORT: 3100
@@ -105,9 +107,11 @@ services:
       EIGENDA_PROXY_SERVICE_MANAGER_ADDR: 0xD4A7E1Bd8015057293f0D0A557088c286942e84b
       EIGENDA_PROXY_EIGENDA_DISPERSER_RPC: disperser-holesky.eigenda.xyz:443
       EIGENDA_PROXY_ETH_CONFIRMATION_DEPTH: 0
-
     ports:
       - 3100:3100
+    volumes:
+      - "./config:/home/user/.arbitrum"
+    restart: unless-stopped
 
   das-server:
     image: ghcr.io/layr-labs/nitro-eigenda:latest
