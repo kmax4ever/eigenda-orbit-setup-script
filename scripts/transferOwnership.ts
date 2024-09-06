@@ -4,7 +4,7 @@ import UpgradeExecutor from '@arbitrum/nitro-contracts/build/contracts/src/mocks
 
 import ArbOwner from '@arbitrum/nitro-contracts/build/contracts/src/precompiles/ArbOwner.sol/ArbOwner.json'
 import fs from 'fs'
-import { L3Config } from './l3ConfigType'
+import { ChildChainConfig } from './childChainConfigType'
 import { TOKEN_BRIDGE_CREATOR_Arb_Sepolia } from './createTokenBridge'
 import L1AtomicTokenBridgeCreator from '@arbitrum/token-bridge-contracts/build/contracts/contracts/tokenbridge/ethereum/L1AtomicTokenBridgeCreator.sol/L1AtomicTokenBridgeCreator.json'
 
@@ -18,13 +18,13 @@ export const getSigner = (provider: JsonRpcProvider, key?: string) => {
 const ARB_OWNER_ADDRESS = '0x0000000000000000000000000000000000000070'
 export async function transferOwner(
   privateKey: string,
-  l2Provider: ethers.providers.JsonRpcProvider,
-  l3Provider: ethers.providers.JsonRpcProvider
+  parentChainProvider: ethers.providers.JsonRpcProvider,
+  childChainProvider: ethers.providers.JsonRpcProvider
 ) {
   //Generating l2 and l3 deployer signers from privatekey and providers
-  const l3Deployer = getSigner(l3Provider, privateKey)
+  const l3Deployer = getSigner(childChainProvider, privateKey)
   //fetching chain id of parent chain
-  const l2ChainId = (await l2Provider.getNetwork()).chainId
+  const l2ChainId = (await parentChainProvider.getNetwork()).chainId
 
   let TOKEN_BRIDGE_CREATOR
   if (l2ChainId === 421614) {
@@ -40,15 +40,15 @@ export async function transferOwner(
     './config/orbitSetupScriptConfig.json',
     'utf-8'
   )
-  const config: L3Config = JSON.parse(configRaw)
+  const config: ChildChainConfig = JSON.parse(configRaw)
 
   const L1AtomicTokenBridgeCreator__factory = new ethers.Contract(
     TOKEN_BRIDGE_CREATOR,
     L1AtomicTokenBridgeCreator.abi,
-    l2Provider
+    parentChainProvider
   )
   const l1TokenBridgeCreator =
-    L1AtomicTokenBridgeCreator__factory.connect(l2Provider)
+    L1AtomicTokenBridgeCreator__factory.connect(parentChainProvider)
 
   //fetching L3 upgrade executor address
   const executorContractAddress = (

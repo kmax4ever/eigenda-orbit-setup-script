@@ -59,14 +59,14 @@ async function sendEthOrDepositERC20(
 
 export async function ethOrERC20Deposit(
   privateKey: string,
-  L2_RPC_URL: string
+  PARENT_CHAIN_RPC_URL: string
 ) {
-  if (!privateKey || !L2_RPC_URL) {
+  if (!privateKey || !PARENT_CHAIN_RPC_URL) {
     throw new Error('Required environment variable not found')
   }
 
-  const l2Provider = new ethers.providers.JsonRpcProvider(L2_RPC_URL)
-  const l2Signer = new ethers.Wallet(privateKey).connect(l2Provider)
+  const parentChainProvider = new ethers.providers.JsonRpcProvider(PARENT_CHAIN_RPC_URL)
+  const l2Signer = new ethers.Wallet(privateKey).connect(parentChainProvider)
 
   const configRaw = fs.readFileSync(
     './config/orbitSetupScriptConfig.json',

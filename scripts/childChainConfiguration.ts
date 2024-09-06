@@ -1,41 +1,41 @@
 import { abi as ArbOwner__abi } from '@arbitrum/nitro-contracts/build/contracts/src/precompiles/ArbOwner.sol/ArbOwner.json'
 import { abi as ArbGasInfo__abi } from '@arbitrum/nitro-contracts/build/contracts/src/precompiles/ArbGasInfo.sol/ArbGasInfo.json'
 import { ethers } from 'ethers'
-import { L3Config } from './l3ConfigType'
+import { ChildChainConfig } from './childChainConfigType'
 import fs from 'fs'
 
-export async function l3Configuration(
+export async function childChainConfiguration(
   privateKey: string,
-  L2_RPC_URL: string,
-  L3_RPC_URL: string
+  PARENT_CHAIN_RPC_URL: string,
+  ORBIT_RPC_URL: string
 ) {
-  if (!privateKey || !L2_RPC_URL || !L3_RPC_URL) {
+  if (!privateKey || !PARENT_CHAIN_RPC_URL || !ORBIT_RPC_URL) {
     throw new Error('Required environment variable not found')
   }
 
   // Generating providers from RPCs
-  const L2Provider = new ethers.providers.JsonRpcProvider(L2_RPC_URL)
-  const L3Provider = new ethers.providers.JsonRpcProvider(L3_RPC_URL)
+  const parentChainProvider = new ethers.providers.JsonRpcProvider(PARENT_CHAIN_RPC_URL)
+  const childChainProvider = new ethers.providers.JsonRpcProvider(ORBIT_RPC_URL)
 
   // Creating the wallet and signer
-  const l2signer = new ethers.Wallet(privateKey).connect(L2Provider)
-  const l3signer = new ethers.Wallet(privateKey).connect(L3Provider)
+  const parentChainSigner = new ethers.Wallet(privateKey).connect(parentChainProvider)
+  const childChainSigner = new ethers.Wallet(privateKey).connect(childChainProvider)
 
   // Read the JSON configuration
   const configRaw = fs.readFileSync(
     './config/orbitSetupScriptConfig.json',
     'utf-8'
   )
-  const config: L3Config = JSON.parse(configRaw)
+  const config: ChildChainConfig = JSON.parse(configRaw)
 
   // Reading params for L3 Configuration
-  const minL2BaseFee = config.minL2BaseFee
+const minL2BaseFee = config.minL2BaseFee
   const networkFeeReceiver = config.networkFeeReceiver
   const infrastructureFeeCollector = config.infrastructureFeeCollector
   const chainOwner = config.chainOwner
 
   // Check if the Private Key provided is the chain owner:
-  if (l3signer.address !== chainOwner) {
+  if (childChainSigner.address !== chainOwner) {
     throw new Error('The Private Key you have provided is not the chain owner')
   }
 
@@ -44,10 +44,10 @@ export async function l3Configuration(
 
   // Arb Owner precompile address
   const arbOwnerAddress = '0x0000000000000000000000000000000000000070'
-  const ArbOwner = new ethers.Contract(arbOwnerAddress, arbOwnerABI, l3signer)
+  const ArbOwner = new ethers.Contract(arbOwnerAddress, arbOwnerABI, childChainSigner)
 
   // Call the isChainOwner function and check the response
-  const isSignerChainOwner = await ArbOwner.isChainOwner(l3signer.address)
+  const isSignerChainOwner = await ArbOwner.isChainOwner(childChainSigner.address)
   if (!isSignerChainOwner) {
     throw new Error('The address you have provided is not the chain owner')
   }
@@ -103,22 +103,10 @@ export async function l3Configuration(
     )
   }
 
-  // Setting L1 basefee on L3
-  const arbGasInfoAbi = ArbGasInfo__abi
-  const arbGasInfoAddress = '0x000000000000000000000000000000000000006c'
-  const ArbOGasInfo = new ethers.Contract(
-    arbGasInfoAddress,
-    arbGasInfoAbi,
-    l2signer
-  )
-
-  console.log('Getting L1 base fee estimate')
-  const l1BaseFeeEstimate = await ArbOGasInfo.getL1BaseFeeEstimate()
-  console.log(`L1 Base Fee estimate on L2 is ${l1BaseFeeEstimate.toNumber()}`)
-  const l2Basefee = await L2Provider.getGasPrice()
-  const totalGasPrice = await l1BaseFeeEstimate.add(l2Basefee)
-  console.log(`Setting L1 base fee estimate on L3 to ${totalGasPrice}`)
-  const tx4 = await ArbOwner.setL1PricePerUnit(totalGasPrice)
+  console.log('Getting base fee estimate')
+  const baseFee = await parentChainProvider.getGasPrice()
+  console.log(`Setting parent chain base fee estimate on Orbit chain to ${baseFee}`)
+  const tx4 = await ArbOwner.setL1PricePerUnit(baseFee)
 
   // Wait for the transaction to be mined
   const receipt4 = await tx4.wait()

@@ -2,9 +2,9 @@ export interface RuntimeState {
   chainId: number
   etherSent: EtherSent
   nativeTokenDeposit: boolean
-  tokenBridgeDeployed: boolean
-  l3config: boolean
-  transferOwnership: boolean
+  // tokenBridgeDeployed: boolean
+  orbitConfig: boolean
+  // transferOwnership: boolean
 }
 
 interface EtherSent {
@@ -19,7 +19,7 @@ export const defaultRunTimeState: RuntimeState = {
     staker: false,
   },
   nativeTokenDeposit: false,
-  tokenBridgeDeployed: false,
-  l3config: false,
-  transferOwnership: false,
+  // tokenBridgeDeployed: false,
+  orbitConfig: false,
+  // transferOwnership: false,
 }

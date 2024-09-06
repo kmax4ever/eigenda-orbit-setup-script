@@ -19,10 +19,10 @@ import {
   createTokenBridgePrepareTransactionReceipt,
   createTokenBridgePrepareSetWethGatewayTransactionRequest,
   createTokenBridgePrepareSetWethGatewayTransactionReceipt,
-} from '@arbitrum/orbit-sdk'
-import { sanitizePrivateKey } from '@arbitrum/orbit-sdk/utils'
+} from '@eigenda/orbit-sdk'
+import { sanitizePrivateKey } from '@eigenda/orbit-sdk/utils'
 
-import { L3Config } from './l3ConfigType'
+import { ChildChainConfig } from './childChainConfigType'
 
 function createPublicClientFromChainInfo({
   id,
@@ -99,8 +99,8 @@ export const createNewTokenBridge = async (
   const l1Provider = new JsonRpcProvider(baseChainRpc)
   const l1NetworkInfo = await l1Provider.getNetwork()
 
-  const l2Provider = new JsonRpcProvider(childChainRpc)
-  const l2NetworkInfo = await l2Provider.getNetwork()
+  const parentChainProvider = new JsonRpcProvider(childChainRpc)
+  const l2NetworkInfo = await parentChainProvider.getNetwork()
 
   const deployer = privateKeyToAccount(sanitizePrivateKey(baseChainDeployerKey))
   const rollup = RollupAdminLogic__factory.connect(rollupAddress, l1Provider)
@@ -348,7 +348,7 @@ export const createERC20Bridge = async (
     './config/orbitSetupScriptConfig.json',
     'utf-8'
   )
-  const config: L3Config = JSON.parse(configRaw)
+  const config: ChildChainConfig = JSON.parse(configRaw)
 
   const outputInfo = {
     chainInfo: {
@@ -361,7 +361,7 @@ export const createERC20Bridge = async (
       chainName: config.chainName,
       chainId: config.chainId,
       parentChainId: config.parentChainId,
-      rpcUrl: 'http://localhost:8449',
+      rpcUrl: childChainRpc,
       explorerUrl: 'http://localhost',
       nativeToken: config.nativeToken,
     },
