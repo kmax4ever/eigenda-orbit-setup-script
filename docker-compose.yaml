@@ -86,7 +86,7 @@ services:
       service: proxy
 
   nitro:
-    image: ghcr.io/layr-labs/nitro-eigenda:eigenda-v3.1.2
+    image: ghcr.io/layr-labs/nitro-eigenda:05bdba4
     platform: linux/amd64
     ports:
       - "127.0.0.1:8449:8449"
@@ -114,7 +114,7 @@ services:
     restart: unless-stopped
 
   das-server:
-    image: ghcr.io/layr-labs/nitro-eigenda:latest
+    image: ghcr.io/layr-labs/nitro-eigenda:05bdba4
     platform: linux/amd64
     entrypoint: [ "/bin/bash", "/das-server.sh" ]
     volumes:
