@@ -83,10 +83,10 @@ async function main() {
     /// Funding batch-poster and staker address ///
     //////////////////////////////////////////////
     if (!rs.etherSent.batchPoster) {
-      console.log('Funding batch-poster accounts on parent chain with 0.003 ETH')
+      console.log('Funding batch-poster accounts on parent chain with 0.3 ETH')
       const tx1 = await signer.sendTransaction({
         to: config.batchPoster,
-        value: ethers.utils.parseEther('0.003'),
+        value: ethers.utils.parseEther('0.3'),
       })
       console.log(`Transaction hash on parent chain: ${tx1.hash}`)
       const receipt1 = await tx1.wait()
@@ -97,10 +97,10 @@ async function main() {
     }
 
     if (!rs.etherSent.staker) {
-      console.log('Funding staker accounts on parent chain with 0.003 ETH')
+      console.log('Funding staker accounts on parent chain with 0.3 ETH')
       const tx2 = await signer.sendTransaction({
         to: config.staker,
-        value: ethers.utils.parseEther('0.003'),
+        value: ethers.utils.parseEther('0.3'),
       })
       console.log(`Transaction hash on parent chain: ${tx2.hash}`)
       const receipt2 = await tx2.wait()
@@ -122,11 +122,11 @@ async function main() {
       let depositCheckTime = 0
 
       // Waiting for 30 secs to be sure that ETH/Native token deposited is received on L3
-      // Repeatedly check the balance until it changes by 0.004 native tokens
+      // Repeatedly check the balance until it changes by 0.4 native tokens
       while (true) {
         depositCheckTime++
         const newBalance = await childChainProvider.getBalance(config.chainOwner)
-        if (newBalance.sub(oldBalance).gte(ethers.utils.parseEther('0.004'))) {
+        if (newBalance.sub(oldBalance).gte(ethers.utils.parseEther('0.4'))) {
           console.log(
             'Balance of your account on Orbit chain increased by the native token you have just sent.'
           )
