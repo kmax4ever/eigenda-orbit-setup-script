@@ -89,7 +89,6 @@ services:
     image: ghcr.io/layr-labs/nitro-eigenda:eigenda-v3.1.2
     platform: linux/amd64
     user: root
-    command: chmod 777 /home/user/.arbitrum
     ports:
       - "127.0.0.1:8449:8449"
     volumes:
@@ -119,7 +118,6 @@ services:
     image: ghcr.io/layr-labs/nitro-eigenda:eigenda-v3.1.2
     platform: linux/amd64
     user: root
-    command: chmod 777 /home/user/das-data
     entrypoint: [ "/bin/bash", "/das-server.sh" ]
     volumes:
       - "./config:/home/user/.arbitrum"
