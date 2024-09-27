@@ -32,6 +32,7 @@ async function main() {
   const privateKey = process.env.PRIVATE_KEY
   const PARENT_CHAIN_RPC_URL = process.env.PARENT_CHAIN_RPC_URL
   const ORBIT_RPC_URL = process.env.ORBIT_RPC_URL
+  const amount= process.env.AMOUNT || "0.001"
 
   if (!privateKey || !PARENT_CHAIN_RPC_URL || !ORBIT_RPC_URL) {
     throw new Error('Required environment variable not found')
@@ -83,10 +84,10 @@ async function main() {
     /// Funding batch-poster and staker address ///
     //////////////////////////////////////////////
     if (!rs.etherSent.batchPoster) {
-      console.log('Funding batch-poster accounts on parent chain with 0.1 ETH')
+      console.log(`Funding batch-poster accounts on parent chain with ${amount} ETH`)
       const tx1 = await signer.sendTransaction({
         to: config.batchPoster,
-        value: ethers.utils.parseEther('0.1'),
+        value: ethers.utils.parseEther(amount),
       })
       console.log(`Transaction hash on parent chain: ${tx1.hash}`)
       const receipt1 = await tx1.wait()
@@ -97,10 +98,10 @@ async function main() {
     }
 
     if (!rs.etherSent.staker) {
-      console.log('Funding staker accounts on parent chain with 0.1 ETH')
+      console.log(`Funding staker accounts on parent chain with ${amount} ETH`)
       const tx2 = await signer.sendTransaction({
         to: config.staker,
-        value: ethers.utils.parseEther('0.1'),
+        value: ethers.utils.parseEther(amount),
       })
       console.log(`Transaction hash on parent chain: ${tx2.hash}`)
       const receipt2 = await tx2.wait()
@@ -126,7 +127,7 @@ async function main() {
       while (true) {
         depositCheckTime++
         const newBalance = await childChainProvider.getBalance(config.chainOwner)
-        if (newBalance.sub(oldBalance).gte(ethers.utils.parseEther('0.1'))) {
+        if (newBalance.sub(oldBalance).gte(ethers.utils.parseEther(amount))) {
           console.log(
             'Balance of your account on Orbit chain increased by the native token you have just sent.'
           )
