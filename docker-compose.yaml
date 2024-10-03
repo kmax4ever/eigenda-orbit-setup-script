@@ -86,8 +86,7 @@ services:
       service: proxy
 
   nitro:
-   # image: ghcr.io/layr-labs/nitro-eigenda:eigenda-v3.1.2
-    image: dfcelestia/nitro-node-dev:latest
+    image: ghcr.io/layr-labs/nitro-eigenda:eigenda-v3.1.2
     platform: linux/amd64
     user: root
     ports:
